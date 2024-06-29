@@ -1,0 +1,4 @@
+Manually Created Resources
+1. Key Pair - mumbai_region_key
+2. Role - ecsTaskExecutionRole
+
