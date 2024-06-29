@@ -43,7 +43,7 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   container_definitions = jsonencode([
     {
       name      = "my-test-project-java-image"
-      image     = "public.ecr.aws/xxxxxxxxxxxxxxxxxxxx/my-test-project-java-image:test-v0.0.3"
+      image     = "public.ecr.aws/o9u1w8l7/my-test-project-java-image:test-v0.0.1"
       cpu       = 512
       memory    = 512
       essential = true

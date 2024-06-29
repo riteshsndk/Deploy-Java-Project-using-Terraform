@@ -1,3 +1,28 @@
+// IAM Role and Instance Profile
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "ecsInstanceRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "ecsInstanceRole"
+  role = aws_iam_role.ecs_instance_role.name
+}
+
+
+// Launch Template
 resource "aws_launch_template" "ecs_lt" {
   name_prefix   = "ecs-template"
   image_id      = "ami-0326a0330a9e7731c"
@@ -6,7 +31,7 @@ resource "aws_launch_template" "ecs_lt" {
   key_name               = "mumbai_region_key"
   vpc_security_group_ids = [aws_security_group.security_group.id]
   iam_instance_profile {
-    name = "ecsInstanceRole"
+    name = aws_iam_instance_profile.ecs_instance_profile.name
   }
 
   block_device_mappings {
@@ -27,6 +52,7 @@ resource "aws_launch_template" "ecs_lt" {
   user_data = filebase64("${path.module}/ecs.sh")
 }
 
+// Auto Scaling Group
 resource "aws_autoscaling_group" "ecs_asg" {
   vpc_zone_identifier = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
   desired_capacity    = 2
@@ -45,7 +71,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
   }
 }
 
-//Alb
+// Application Load Balancer (ALB)
 resource "aws_lb" "ecs_alb" {
   name               = "ecs-alb"
   internal           = false
@@ -80,6 +106,3 @@ resource "aws_lb_target_group" "ecs_tg" {
     path = "/"
   }
 }
-
-
-
